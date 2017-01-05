@@ -27,4 +27,32 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:id="@+id/btn_back" />
+
+    <Button
+        android:text="GetJSON"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_getjson"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:onClick="getJSON"/>
+
+    <Button
+        android:text="ParseJSON"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:id="@+id/btn_parsejson"
+        android:layout_below="@+id/btn_getjson"
+        android:layout_centerHorizontal="true"
+        android:onClick="parseJSON"/>
+
+    <TextView
+        android:text="JSON Appear here"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/btn_parsejson"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="70dp"
+        android:id="@+id/textView_displayJSON" />
 </RelativeLayout>
