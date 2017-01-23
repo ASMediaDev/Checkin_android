@@ -28,31 +28,77 @@
         android:layout_alignParentStart="true"
         android:id="@+id/btn_back" />
 
-    <Button
-        android:text="GetJSON"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btn_getjson"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:onClick="getJSON"/>
+
 
     <Button
-        android:text="ParseJSON"
+        android:text="Display Attendees"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="18dp"
         android:id="@+id/btn_parsejson"
-        android:layout_below="@+id/btn_getjson"
+        android:layout_below="@+id/selectEvent"
         android:layout_centerHorizontal="true"
         android:onClick="parseJSON"/>
+
+    <Button
+        android:text="Insert into DB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btn_parsejson"
+        android:layout_centerHorizontal="true"
+        android:onClick="insertAttendees"
+        android:id="@+id/btn_insertAttendees"
+        />
+
+    <Button
+        android:text="Show DB"
+        android:id="@+id/btn_showDB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btn_insertAttendees"
+        android:layout_centerHorizontal="true"
+        android:onClick="showDB"
+         />
 
     <TextView
         android:text="JSON Appear here"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/btn_parsejson"
+        android:id="@+id/textView_displayJSON"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="70dp"
-        android:id="@+id/textView_displayJSON" />
+         />
+    <TextView
+        android:text="DB Content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView_displayDB"
+        android:layout_below="@+id/btn_showDB"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        />
+
+    <TextView
+        android:text="@string/select_event"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/selectEvent"
+        android:layout_below="@+id/btn_back"
+        android:layout_marginTop="20dp"
+        />
+
+    <Spinner
+        android:id="@+id/spinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@+id/selectEvent"
+        android:layout_below="@+id/btn_back"
+        android:layout_marginTop="20dp"
+        >
+
+    </Spinner>
+
+
+
 </RelativeLayout>

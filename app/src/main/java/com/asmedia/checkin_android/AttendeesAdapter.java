@@ -1,8 +1,6 @@
 package com.asmedia.checkin_android;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,17 +14,17 @@ import java.util.List;
  * Created by alexanderseitz on 04.01.17.
  */
 
-public class EventsAdapter extends ArrayAdapter {
+public class AttendeesAdapter extends ArrayAdapter {
 
     List list = new ArrayList();
 
 
-    public EventsAdapter(Context context, int resource) {
+    public AttendeesAdapter(Context context, int resource) {
         super(context, resource);
     }
 
 
-    public void add(Events object) {
+    public void add(Attendees object) {
         super.add(object);
         list.add(object);
     }
@@ -48,33 +46,33 @@ public class EventsAdapter extends ArrayAdapter {
 
         View row;
         row = convertView;
-        EventHolder eventHolder;
+        AttendeesHolder attendeesHolder;
 
         if(row==null){
 
             LayoutInflater layoutInflater = (LayoutInflater)this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-            row = layoutInflater.inflate(R.layout.row_layout,parent,false);
+            row = layoutInflater.inflate(R.layout.row_layout_attendees,parent,false);
 
-            eventHolder = new EventHolder();
-            eventHolder.tx_eventname = (TextView)row.findViewById(R.id.tx_eventname);
-            eventHolder.tx_eventid = (TextView)row.findViewById(R.id.tx_eventid);
-            row.setTag(eventHolder);
+            attendeesHolder = new AttendeesHolder();
+            attendeesHolder.tx_firstname = (TextView)row.findViewById(R.id.tx_firstname);
+            attendeesHolder.tx_lastname = (TextView)row.findViewById(R.id.tx_lastname);
+            row.setTag(attendeesHolder);
 
         }else{
-            eventHolder = (EventHolder)row.getTag();
+            attendeesHolder = (AttendeesHolder) row.getTag();
 
         }
 
-        Events events = (Events)this.getItem(position);
-        eventHolder.tx_eventname.setText(events.getEventname());
-        eventHolder.tx_eventid.setText(events.getEventid());
+        Attendees attendees = (Attendees) this.getItem(position);
+        attendeesHolder.tx_firstname.setText(attendees.getFirst_name());
+        attendeesHolder.tx_lastname.setText(attendees.getLast_name());
 
         return row;
     }
 
-    static class EventHolder{
-        TextView tx_eventname, tx_eventid;
+    static class AttendeesHolder{
+        TextView tx_firstname, tx_lastname;
 
     }
 }

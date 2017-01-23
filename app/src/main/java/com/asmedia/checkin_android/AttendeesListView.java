@@ -1,7 +1,7 @@
 package com.asmedia.checkin_android;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ListView;
 
@@ -9,23 +9,23 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class DisplayListView extends AppCompatActivity {
+public class AttendeesListView extends AppCompatActivity {
 
     String json_string;
     JSONObject jsonObject;
     JSONArray jsonArray;
     ListView listView;
-    EventsAdapter eventsAdapter;
+    AttendeesAdapter attendeesAdapter;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_display_list_view);
-        listView = (ListView) findViewById(R.id.listview);
-        eventsAdapter = new EventsAdapter(this, R.layout.row_layout);
+        setContentView(R.layout.activity_attendees_list_view);
+        listView = (ListView) findViewById(R.id.attendeesListView);
+        attendeesAdapter = new AttendeesAdapter(this, R.layout.row_layout_attendees);
 
-        listView.setAdapter(eventsAdapter);
+        listView.setAdapter(attendeesAdapter);
 
 
 
@@ -41,19 +41,23 @@ public class DisplayListView extends AppCompatActivity {
                 jsonArray = new JSONArray(json_string);
 
 
-                String eventname, eventid;
+                String first_name, last_name;
                 int count = 0;
 
                 while (count < jsonArray.length()) {
 
                     JSONObject JO = jsonArray.getJSONObject(count);
                     Log.d("JSON", String.valueOf(JO));
-                    eventname = JO.getString("title");
-                    eventid = JO.getString("id");
+                    first_name = JO.getString("first_name");
+                    last_name = JO.getString("last_name");
 
-                    Events events = new Events(eventname, eventid);
+                    Log.d("ALV",first_name);
+                    Log.d("ALV",last_name);
 
-                    eventsAdapter.add(events);
+                    Attendees attendees = new Attendees(first_name, last_name);
+
+                    attendeesAdapter.add(attendees);
+                   //Log.d("ALV", String.valueOf(attendeesAdapter);
 
                     count++;
 
