@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //click button code here
-                Intent i = new Intent(view.getContext(), ScanActivity.class);
+                Intent i = new Intent(view.getContext(), ScanActivityZXing.class);
                 startActivity(i);
             }
 

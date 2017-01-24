@@ -1,5 +1,7 @@
 package com.asmedia.checkin_android;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -269,11 +271,8 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
         protected void onPreExecute() {
             super.onPreExecute();
 
-            /*pDialog = new ProgressDialog(MainActivity.this);
-            pDialog.setMessage("Fetching food categories..");
-            pDialog.setCancelable(false);
-            pDialog.show();
-*/
+
+
         }
 
         @Override
@@ -293,12 +292,36 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
 
 
         @Override
-        protected void onPostExecute(String result) {
+        protected void onPostExecute(final String result) {
             super.onPostExecute(result);
             //if (pDialog.isShowing())
             //  pDialog.dismiss();
             //populateSpinner();
-            insertIntoRealm(result);
+
+            AlertDialog.Builder a_builder = new AlertDialog.Builder(AdminActivity.this);
+            a_builder.setMessage("Bisherige Datensätze werden überschrieben! Fortfahren?")
+                    .setCancelable(false)
+                    .setPositiveButton("Ja", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                        insertIntoRealm(result);
+
+
+                        }
+                    })
+                    .setNegativeButton("Nein", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.cancel();
+                        }
+                    });
+
+            AlertDialog alert = a_builder.create();
+            alert.setTitle("Achtung!");
+            alert.show();
+
+            
         }
 
     }

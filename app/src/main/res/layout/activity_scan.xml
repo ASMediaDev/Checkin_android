@@ -25,6 +25,16 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
+    <Button
+        android:text="reset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_reset"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:onClick="resetQr"
+         />
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -15,7 +15,7 @@
         <activity android:name=".LoginActivity" />
         <activity android:name=".AdminActivity" />
         <activity android:name=".ScanActivity" />
-        <activity android:name=".AttendeesListView"/>
+        <activity android:name=".AttendeesListView" />
         <activity
             android:name=".Splashscreen"
             android:configChanges="orientation|keyboardHidden|screenSize"
@@ -27,6 +27,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ScanActivityZXing"></activity>
     </application>
 
 </manifest>
