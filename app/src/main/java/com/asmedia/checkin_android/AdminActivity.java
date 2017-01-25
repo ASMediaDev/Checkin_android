@@ -26,6 +26,7 @@ import java.util.concurrent.ExecutionException;
 
 
 import io.realm.Realm;
+import io.realm.RealmConfiguration;
 import io.realm.RealmResults;
 
 public class AdminActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
@@ -66,6 +67,7 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
 
         Realm.init(this);
         realm = Realm.getDefaultInstance();
+
 
 
         btn_logout = (Button) findViewById(R.id.btn_logout);
@@ -321,7 +323,7 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
             alert.setTitle("Achtung!");
             alert.show();
 
-            
+
         }
 
     }
@@ -352,7 +354,7 @@ session = new Session(this);
 
         for(int i=0;i< results.size();i++){
 
-            displayData.append(results.get(i).getFirstName() + results.get(i).getLastName() + " ");
+            displayData.append(results.get(i).getFirstName() + results.get(i).getLastName() + results.get(i).getEventName() +" ");
         }
 
     }
@@ -370,17 +372,20 @@ session = new Session(this);
 
                     for (int i = 0; i < jsonArr.length(); i++) {
                         realm.beginTransaction();
-                        AttendeeObject obj = realm.createObject(AttendeeObject.class);
+
                         JSONObject catObj = (JSONObject) jsonArr.get(i);
+                        AttendeeObject obj = realm.createObject(AttendeeObject.class, catObj.getInt("private_reference_number"));
 
                         obj.setFirstName(catObj.getString("first_name"));
                         obj.setLastName(catObj.getString("last_name"));
                         obj.setOrderId(catObj.getInt("order_id"));
                         obj.setTicketId(catObj.getInt("ticket_id"));
-                        obj.setPrivate_reference_number(catObj.getInt("private_reference_number"));
+                        //obj.setPrivate_reference_number(catObj.getInt("private_reference_number"));
                         obj.setArrived(false);
+                        obj.setEventName(String.valueOf(eventsArrayList.get(catObj.getInt("event_id")-1).getEventname()));
 
-                        Log.d("Insertion for ",obj.getFirstName() + obj.getLastName() +"complete");
+                        Log.d("Insertion for ",obj.getFirstName() + obj.getLastName() +"complete" + "Event: " +
+                                String.valueOf(eventsArrayList.get(catObj.getInt("event_id")-1).getEventname()));
 
                         realm.commitTransaction();
 

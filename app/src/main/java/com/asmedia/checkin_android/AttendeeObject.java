@@ -3,6 +3,7 @@ package com.asmedia.checkin_android;
 import java.util.Date;
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by alexanderseitz on 21.01.17.
@@ -11,12 +12,26 @@ import io.realm.RealmObject;
 public class AttendeeObject extends RealmObject {
 
     int ticketId;
+
+    @PrimaryKey
     int private_reference_number;
+
     int orderId;
     String lastName;
     String firstName;
-    Date checkinTime;
+    String checkinTime;
     Boolean arrived;
+    String eventName;
+
+    public String getEventName() {
+        return eventName;
+    }
+
+    public void setEventName(String eventName) {
+        this.eventName = eventName;
+    }
+
+
 
     public int getTicketId() {
         return ticketId;
@@ -58,11 +73,11 @@ public class AttendeeObject extends RealmObject {
         this.firstName = firstName;
     }
 
-    public Date getCheckinTime() {
+    public String getCheckinTime() {
         return checkinTime;
     }
 
-    public void setCheckinTime(Date checkinTime) {
+    public void setCheckinTime(String checkinTime) {
         this.checkinTime = checkinTime;
     }
 
