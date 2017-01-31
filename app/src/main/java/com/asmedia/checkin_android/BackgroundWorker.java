@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.nfc.Tag;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 
@@ -45,7 +46,7 @@ public class BackgroundWorker extends AsyncTask<String,Void,String> {
     protected String doInBackground(String... params) {
 
         String type = params[0];
-        String login_url = "http://api.ticketval.de/signin.php";
+        String login_url = "http://laravel.ticketval.de/api/login";
 
         if(type.equals("login")){
 
@@ -109,7 +110,7 @@ public class BackgroundWorker extends AsyncTask<String,Void,String> {
     @Override
     protected void onPostExecute(String result) {
 
-        session = new Session(context);
+        //session = new Session(context);
 
 
         if (result.contains("200")){

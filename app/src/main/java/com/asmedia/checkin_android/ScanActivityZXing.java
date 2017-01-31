@@ -48,22 +48,9 @@ public class ScanActivityZXing extends AppCompatActivity implements ZXingScanner
         Realm.init(this);
         realm = Realm.getDefaultInstance();
 
+        updateStatus();
 
-        RealmResults<AttendeeObject> results = realm.where(AttendeeObject.class).findAll();
 
-        if (results.isEmpty()){
-
-            eventStatus.setText("NO EVENT SYNCED");
-
-        }else {
-
-            loadedEvent = results.get(0).getEventName();
-            attendeesCount = results.size();
-            Log.d("Event: ",loadedEvent);
-
-            eventStatus.setText("Event: " + loadedEvent + " | " + "Attendees: " + attendeesCount);
-
-        }
 
         //mScannerView = new ZXingScannerView(this);
         //setContentView(mScannerView);
@@ -107,6 +94,7 @@ public class ScanActivityZXing extends AppCompatActivity implements ZXingScanner
                             public void onClick(DialogInterface dialogInterface, int i) {
 
                                 checkIn(finalPrivate_reference_number);
+                                updateStatus();
 
                                 mScannerView.resumeCameraPreview(ScanActivityZXing.this);
 
@@ -137,6 +125,7 @@ public class ScanActivityZXing extends AppCompatActivity implements ZXingScanner
                             public void onClick(DialogInterface dialogInterface, int i) {
 
                                 checkOut(finalPrivate_reference_number1);
+                                updateStatus();
 
                                 mScannerView.resumeCameraPreview(ScanActivityZXing.this);
 
@@ -296,6 +285,38 @@ public class ScanActivityZXing extends AppCompatActivity implements ZXingScanner
         return attendeeName;
 
 
+
+    }
+
+    public int attendeesArrived(){
+
+        RealmQuery<AttendeeObject> query = realm.where(AttendeeObject.class);
+        query.equalTo("arrived", true);
+
+        RealmResults<AttendeeObject> results = query.findAll();
+
+        return results.size();
+    }
+
+    public void updateStatus(){
+
+
+        RealmResults<AttendeeObject> results = realm.where(AttendeeObject.class).findAll();
+
+        if (results.isEmpty()){
+
+            eventStatus.setText("NO EVENT SYNCED");
+
+        }else {
+
+
+            loadedEvent = results.get(0).getEventName();
+            attendeesCount = results.size();
+            Log.d("Event: ", loadedEvent);
+
+            eventStatus.setText("Event: " + loadedEvent + " | " + "Attendees: " + attendeesArrived() + "/" + attendeesCount);
+
+        }
 
     }
 }

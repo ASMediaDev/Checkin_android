@@ -1,8 +1,10 @@
 package com.asmedia.checkin_android;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,15 +18,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.JsonHttpResponseHandler;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONStringer;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 
+import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmResults;
@@ -105,9 +112,7 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
 
         displayJson = (TextView) findViewById(R.id.textView_displayJSON);
 
-        new GetEvents().execute();
-
-        //new GetAttendees().execute(1);
+        getEvents();
 
 
 
@@ -119,6 +124,7 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
         Toast.makeText(this,"Selected: " + eventsArrayList.get(i).getEventname(),Toast.LENGTH_SHORT).show();
         selectedEvent = (i+1);
         //new GetAttendees().execute(i+1);
+        //getAttendees(i+1);
 
 
     }
@@ -128,60 +134,176 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
 
     }
 
-    private class GetEvents extends AsyncTask<Void, Void, Void> {
+    public void getEvents(){
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            /*pDialog = new ProgressDialog(MainActivity.this);
-            pDialog.setMessage("Fetching food categories..");
-            pDialog.setCancelable(false);
-            pDialog.show();
-*/
-        }
+        String url = "http://laravel.ticketval.de/api/getEvents";
 
-        @Override
-        protected Void doInBackground(Void... arg0) {
-            ServiceHandler jsonParser = new ServiceHandler();
-            String json = jsonParser.makeServiceCall(URL_EVENTS, ServiceHandler.GET);
+        String accesToken;
 
-            Log.e("Response: ", "> " + json);
+        SharedPreferences sharedPref = getSharedPreferences("accessTokens", Context.MODE_PRIVATE);
 
-            if (json != null) {
-                try {
-                    JSONArray jsonArr = new JSONArray(json);
-                    if (jsonArr != null) {
-                        JSONArray categories = jsonArr;
+        accesToken = sharedPref.getString("accessToken", "");
+
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.addHeader("Authorization", "Bearer " + accesToken);
+
+        client.get(url, null, new JsonHttpResponseHandler(){
+            @Override
+            public void onSuccess (int statusCode, Header[] headers, JSONArray response){
+
+                Log.d("Response: ", String.valueOf(response));
+
+                if (response != null) {
+                    try {
+                        //JSONArray jsonArr = new JSONArray(response);
+                        if (response != null) {
+                            JSONArray categories = response;
 
 
-                        for (int i = 0; i < categories.length(); i++) {
-                            JSONObject catObj = (JSONObject) categories.get(i);
-                            Events cat = new Events(catObj.getString("title"),
-                                    catObj.getString("id"));
-                            eventsArrayList.add(cat);
+                            for (int i = 0; i < categories.length(); i++) {
+                                JSONObject catObj = (JSONObject) categories.get(i);
+                                Events cat = new Events(catObj.getString("title"),
+                                        catObj.getString("id"));
+                                eventsArrayList.add(cat);
+
+                                populateSpinner();
+                            }
                         }
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
 
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                } else {
+                    Log.e("JSON Data", "Didn't receive any data from server!");
                 }
 
-            } else {
-                Log.e("JSON Data", "Didn't receive any data from server!");
             }
 
-            return null;
-        }
+            @Override
+            public void onFailure (int statusCode, Header[] headers, String responseString, Throwable throwable){
+                super.onFailure(statusCode, headers, responseString, throwable);
+                Log.d("Failed: ", String.valueOf(statusCode));
+                Log.d("Error getEvents: ", String.valueOf(throwable));
+            }
+        });
+    }
 
-        @Override
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
-            //if (pDialog.isShowing())
-            //  pDialog.dismiss();
-            populateSpinner();
-        }
+    public void getAttendees(int eventId){
+
+        String url = "http://laravel.ticketval.de/api/getAttendees/" + eventId;
+
+        String accesToken;
+
+        SharedPreferences sharedPref = getSharedPreferences("accessTokens", Context.MODE_PRIVATE);
+
+        accesToken = sharedPref.getString("accessToken", "");
+
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.addHeader("Authorization", "Bearer " + accesToken);
+
+        client.get(url, null, new JsonHttpResponseHandler(){
+            @Override
+            public void onSuccess (int statusCode, Header[] headers, JSONArray response){
+
+                Log.d("Response: ", String.valueOf(response));
+
+                if (response != null) {
+
+                    if (response != null) {
+
+                        Log.d("AdminActivity", "before intent");
+                        Intent i = new Intent(getApplicationContext(), AttendeesListView.class);
+                        i.putExtra("json_data", String.valueOf(response));
+                        startActivity(i);
+
+                    }
+
+                } else {
+                    Log.e("JSON Data", "Didn't receive any data from server!");
+                }
+
+            }
+
+            @Override
+            public void onFailure (int statusCode, Header[] headers, String responseString, Throwable throwable){
+                super.onFailure(statusCode, headers, responseString, throwable);
+                Log.d("Failed: ", String.valueOf(statusCode));
+                Log.d("Error: ", String.valueOf(throwable));
+            }
+        });
+    }
+
+
+    public void insertAttendees(View view){
+
+        String url = "http://laravel.ticketval.de/api/getAttendees/" + selectedEvent;
+
+        String accesToken;
+
+        SharedPreferences sharedPref = getSharedPreferences("accessTokens", Context.MODE_PRIVATE);
+
+        accesToken = sharedPref.getString("accessToken", "");
+
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.addHeader("Authorization", "Bearer " + accesToken);
+
+        client.get(url, null, new JsonHttpResponseHandler(){
+            @Override
+            public void onSuccess (int statusCode, Header[] headers, final JSONArray response){
+
+                Log.d("Response: ", String.valueOf(response));
+
+                if (response != null) {
+
+                    if (response != null) {
+
+                        AlertDialog.Builder a_builder = new AlertDialog.Builder(AdminActivity.this);
+                        a_builder.setMessage("Bisherige Datensätze werden überschrieben! Fortfahren?")
+                                .setCancelable(false)
+                                .setPositiveButton("Ja", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                                        insertIntoRealm(String.valueOf(response));
+
+
+                                    }
+                                })
+                                .setNegativeButton("Nein", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        dialogInterface.cancel();
+                                    }
+                                });
+
+                        AlertDialog alert = a_builder.create();
+                        alert.setTitle("Achtung!");
+                        alert.show();
+
+                    }
+
+                } else {
+                    Log.e("JSON Data", "Didn't receive any data from server!");
+                }
+
+            }
+
+            @Override
+            public void onFailure (int statusCode, Header[] headers, String responseString, Throwable throwable){
+                super.onFailure(statusCode, headers, responseString, throwable);
+                Log.d("Failed: ", String.valueOf(statusCode));
+                Log.d("Error: ", String.valueOf(throwable));
+            }
+        });
+
+
+
 
     }
+
+
+
 
     /**
      * Adding spinner data
@@ -209,134 +331,11 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
     }
 
 
-    private class GetAttendees extends AsyncTask<Integer, Void, Void> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-            /*pDialog = new ProgressDialog(MainActivity.this);
-            pDialog.setMessage("Fetching food categories..");
-            pDialog.setCancelable(false);
-            pDialog.show();
-*/
-        }
-
-        @Override
-        protected Void doInBackground(Integer... integers) {
-            ServiceHandler jsonParser = new ServiceHandler();
-            String requestUrl = URL_ATTENDEES + integers[0];
-            Log.d("URL",requestUrl);
-            String json = jsonParser.makeServiceCall(requestUrl, ServiceHandler.GET);
-
-            Log.e("Response: ", "> " + json);
-
-            if (json != null) {
-                try {
-                    JSONArray jsonArr = new JSONArray(json);
-                    if (jsonArr != null) {
-
-                        Log.d("AdminActivity", "before intent");
-                        Intent i = new Intent(getApplicationContext(), AttendeesListView.class);
-                        i.putExtra("json_data", json);
-                        startActivity(i);
-
-                    }
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-            } else {
-                Log.e("JSON Data", "Didn't receive any data from server!");
-            }
-
-            return null;
-        }
-
-
-
-        @Override
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
-            //if (pDialog.isShowing())
-            //  pDialog.dismiss();
-            //populateSpinner();
-        }
-
-    }
-
-
-    private class InsertAttendees extends AsyncTask<Object, Object, String> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-
-
-        }
-
-        @Override
-        protected String doInBackground(Object... integers) {
-            ServiceHandler jsonParser = new ServiceHandler();
-            String requestUrl = URL_ATTENDEES + integers[0];
-            Log.d("URL",requestUrl);
-            String json = jsonParser.makeServiceCall(requestUrl, ServiceHandler.GET);
-
-            Log.e("Response: ", "> " + json);
-
-
-
-            return json;
-        }
-
-
-
-        @Override
-        protected void onPostExecute(final String result) {
-            super.onPostExecute(result);
-            //if (pDialog.isShowing())
-            //  pDialog.dismiss();
-            //populateSpinner();
-
-            AlertDialog.Builder a_builder = new AlertDialog.Builder(AdminActivity.this);
-            a_builder.setMessage("Bisherige Datensätze werden überschrieben! Fortfahren?")
-                    .setCancelable(false)
-                    .setPositiveButton("Ja", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-
-                        insertIntoRealm(result);
-
-
-                        }
-                    })
-                    .setNegativeButton("Nein", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            dialogInterface.cancel();
-                        }
-                    });
-
-            AlertDialog alert = a_builder.create();
-            alert.setTitle("Achtung!");
-            alert.show();
-
-
-        }
-
-    }
-
-/*
-session = new Session(this);
-                session.setLoggedIn(false);
- */
-
 
     public void parseJSON(View view) throws ExecutionException, InterruptedException {
 
-        new GetAttendees().execute(selectedEvent);
+        //new GetAttendees().execute(selectedEvent);
+        getAttendees(selectedEvent);
 
 
     }
@@ -407,11 +406,7 @@ session = new Session(this);
 
     }
 
-    public void insertAttendees(View view){
 
-        new InsertAttendees().execute(selectedEvent);
-
-    }
 
 
 
