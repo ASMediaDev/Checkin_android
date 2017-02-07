@@ -14,4 +14,6 @@
     <string name="title_activity_splashscreen">Checkin</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="select_event">Select Event:</string>
+    <string name="ok">ok</string>
+    <string name="permission_camera_rationale">empty</string>
 </resources>

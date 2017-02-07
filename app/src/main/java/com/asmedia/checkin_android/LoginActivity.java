@@ -12,6 +12,7 @@ import android.widget.EditText;
 
 import com.loopj.android.http.*;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -45,8 +46,14 @@ public class LoginActivity extends AppCompatActivity {
 
             Log.d(TAG, "logged in");
 
-            Intent i = new Intent(this, AdminActivity.class);
-            startActivity(i);
+            String username = String.valueOf(UsernameEt.getText());
+            String password = String.valueOf(PasswordEt.getText());
+
+
+            //Intent i = new Intent(this, AdminActivity.class);
+            //startActivity(i);
+
+            validateAccessToken(username, password);
 
         } else{
 
@@ -92,9 +99,9 @@ public class LoginActivity extends AppCompatActivity {
                        editor.apply();
 
                        session.setLoggedIn(true);
-                       getAccessToken(username,password);
-
-                       redirect(view);
+                       //getAccessToken(username,password);
+                       validateAccessToken(username, password);
+                       //redirect(view);
 
 
 
@@ -182,6 +189,8 @@ public class LoginActivity extends AppCompatActivity {
 
                     Log.d("AccessToken: ", accessToken);
 
+                    redirect(findViewById(android.R.id.content));
+
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -199,6 +208,68 @@ public class LoginActivity extends AppCompatActivity {
 
 
         });
+
+
+    }
+
+    public void validateAccessToken(final String username, final String password){
+
+
+        String url = "http://laravel.ticketval.de/api/validateToken";
+
+        String accesToken;
+
+
+
+        SharedPreferences sharedPref = getSharedPreferences("accessTokens", Context.MODE_PRIVATE);
+
+        accesToken = sharedPref.getString("accessToken", "");
+
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.addHeader("Authorization", "Bearer " + accesToken);
+
+        client.get(url, null, new JsonHttpResponseHandler(){
+            @Override
+            public void onSuccess (int statusCode, Header[] headers, JSONObject response){
+
+                Log.d("Response: ", String.valueOf(response));
+
+                if (response != null) {
+                    try {
+                        //JSONArray jsonArr = new JSONArray(response);
+                        if (response != null) {
+
+                            String debug = response.getString("status");
+                            Log.d("Response: ", debug);
+
+                            if (response.getInt("status") == 200){
+
+                                redirect(findViewById(android.R.id.content));
+
+                            }
+
+                        }
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                } else {
+                    Log.e("JSON Data", "Didn't receive any data from server!");
+                }
+
+            }
+
+            @Override
+            public void onFailure (int statusCode, Header[] headers, String responseString, Throwable throwable){
+                super.onFailure(statusCode, headers, responseString, throwable);
+                Log.d("Failed: ", String.valueOf(statusCode));
+                getAccessToken(username, password);
+
+            }
+        });
+
+
 
 
     }
