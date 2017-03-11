@@ -68,7 +68,7 @@ public class LoginActivity extends AppCompatActivity {
         final String password = PasswordEt.getText().toString();
         //String type = "login";
 
-        String url = "http://laravel.ticketval.de/api/login";
+        String url = "https://ticketval.de/api/login";
 
         RequestParams params = new RequestParams();
         params.put("userName", username);
@@ -100,6 +100,7 @@ public class LoginActivity extends AppCompatActivity {
 
                        session.setLoggedIn(true);
                        //getAccessToken(username,password);
+                       Log.d(TAG, "jump into validation");
                        validateAccessToken(username, password);
                        //redirect(view);
 
@@ -162,12 +163,12 @@ public class LoginActivity extends AppCompatActivity {
 
     public void getAccessToken(String username, String password){
 
-        String url = "http://laravel.ticketval.de/oauth/token";
+        String url = "https://ticketval.de/oauth/token";
 
         RequestParams params = new RequestParams();
         params.put("grant_type", "password");
-        params.put("client_id", "4");
-        params.put("client_secret", "WGy6yOMh1730nI71mKR2V02FT6b8JrgS6A0GDKTm");
+        params.put("client_id", "11");
+        params.put("client_secret", "e0cJTi4FT8oqBITsqakgsFYdhkD4CtrqVmqrtVQJ");
         params.put("username", username);
         params.put("password", password);
 
@@ -215,18 +216,21 @@ public class LoginActivity extends AppCompatActivity {
     public void validateAccessToken(final String username, final String password){
 
 
-        String url = "http://laravel.ticketval.de/api/validateToken";
+        String url = "https://ticketval.de/api/validateToken";
 
-        String accesToken;
-
+        String accessToken;
 
 
         SharedPreferences sharedPref = getSharedPreferences("accessTokens", Context.MODE_PRIVATE);
 
-        accesToken = sharedPref.getString("accessToken", "");
+        accessToken = sharedPref.getString("accessToken", "");
 
         AsyncHttpClient client = new AsyncHttpClient();
-        client.addHeader("Authorization", "Bearer " + accesToken);
+        client.addHeader("Authorization", "Bearer " + accessToken);
+
+        Log.d("Token: ", accessToken);
+
+        Log.d(TAG, "validating token request");
 
         client.get(url, null, new JsonHttpResponseHandler(){
             @Override
@@ -264,6 +268,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onFailure (int statusCode, Header[] headers, String responseString, Throwable throwable){
                 super.onFailure(statusCode, headers, responseString, throwable);
                 Log.d("Failed: ", String.valueOf(statusCode));
+                Log.d(TAG,"token not valid, starting getAccessToken process");
                 getAccessToken(username, password);
 
             }

@@ -46,7 +46,7 @@ public class BackgroundWorker extends AsyncTask<String,Void,String> {
     protected String doInBackground(String... params) {
 
         String type = params[0];
-        String login_url = "http://laravel.ticketval.de/api/login";
+        String login_url = "https://ticketval.de/api/login";
 
         if(type.equals("login")){
 

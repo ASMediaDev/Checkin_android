@@ -46,8 +46,8 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
 
     private ArrayList<Events> eventsArrayList;
 
-    private String URL_EVENTS = "http://api.ticketval.de/getEvents.php";
-    private String URL_ATTENDEES = "http://api.ticketval.de/getAttendees.php?eventId=";
+    private String URL_EVENTS = "https://ticketval.de/api/getEvents";
+    private String URL_ATTENDEES = "https://ticketval.de/api/getAttendees?eventId=";
 
 
     String [] spinnerList = {};
@@ -136,16 +136,16 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
 
     public void getEvents(){
 
-        String url = "http://laravel.ticketval.de/api/getEvents";
+        String url = "https://ticketval.de/api/getEvents";
 
-        String accesToken;
+        String accessToken;
 
         SharedPreferences sharedPref = getSharedPreferences("accessTokens", Context.MODE_PRIVATE);
 
-        accesToken = sharedPref.getString("accessToken", "");
+        accessToken = sharedPref.getString("accessToken", "");
 
         AsyncHttpClient client = new AsyncHttpClient();
-        client.addHeader("Authorization", "Bearer " + accesToken);
+        client.addHeader("Authorization", "Bearer " + accessToken);
 
         client.get(url, null, new JsonHttpResponseHandler(){
             @Override
@@ -191,16 +191,16 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
 
     public void getAttendees(int eventId){
 
-        String url = "http://laravel.ticketval.de/api/getAttendees/" + eventId;
+        String url = "https://ticketval.de/api/getAttendees/" + eventId;
 
-        String accesToken;
+        String accessToken;
 
         SharedPreferences sharedPref = getSharedPreferences("accessTokens", Context.MODE_PRIVATE);
 
-        accesToken = sharedPref.getString("accessToken", "");
+        accessToken = sharedPref.getString("accessToken", "");
 
         AsyncHttpClient client = new AsyncHttpClient();
-        client.addHeader("Authorization", "Bearer " + accesToken);
+        client.addHeader("Authorization", "Bearer " + accessToken);
 
         client.get(url, null, new JsonHttpResponseHandler(){
             @Override
@@ -237,7 +237,7 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
 
     public void insertAttendees(View view){
 
-        String url = "http://laravel.ticketval.de/api/getAttendees/" + selectedEvent;
+        String url = "https://ticketval.de/api/getAttendees/" + selectedEvent;
 
         String accesToken;
 
