@@ -8,83 +8,85 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:layout_below="@+id/navigation_bar"
     tools:context="com.asmedia.checkin_android.AdminActivity">
 
-    <Button
-        android:text="Logout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
         android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:id="@+id/btn_logout" />
-
-    <Button
-        android:text="Back"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/btn_back" />
-
-
-
-    <Button
-        android:text="Display Attendees"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="18dp"
-        android:id="@+id/btn_parsejson"
-        android:layout_below="@+id/selectEvent"
         android:layout_centerHorizontal="true"
-        android:onClick="parseJSON"/>
+        android:layout_marginBottom="10dp"
+        android:id="@+id/navigation_bar">
 
-    <Button
-        android:text="Insert into DB"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/btn_parsejson"
-        android:layout_centerHorizontal="true"
-        android:onClick="insertAttendees"
-        android:id="@+id/btn_insertAttendees"
-        />
 
-    <Button
-        android:text="Show DB"
-        android:id="@+id/btn_showDB"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/btn_insertAttendees"
-        android:layout_centerHorizontal="true"
-        android:onClick="showDB"
-         />
+        <ImageButton
+            android:src="@drawable/ic_arrow_back_black_24dp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/btn_back"
+            android:layout_weight="1"/>
 
-    <TextView
-        android:text="JSON Appear here"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textView_displayJSON"
-        android:layout_alignParentBottom="true"
+        <ImageButton
+            android:src="@drawable/ic_report_black_24dp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/btn_trash"
+            android:onClick="truncate_db"
+            android:layout_weight="1"/>
+
+        <ImageButton
+            android:src="@drawable/ic_center_focus_weak_black_24dp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/btn_checkin"
+            android:layout_weight="1"
+            />
+
+        <Button
+            android:text="Logout"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/btn_logout"
+            />
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
         android:layout_centerHorizontal="true"
-         />
-    <TextView
-        android:text="DB Content"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textView_displayDB"
-        android:layout_below="@+id/btn_showDB"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        />
+        android:layout_marginBottom="40dp"
+        android:id="@+id/status_bar"
+        android:layout_below="@+id/navigation_bar"
+        >
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/holo_red_light"
+            android:id="@+id/status_bar_bg">
+        </View>
+
+        <TextView
+            android:text="Anzahl der Gäste in der Datenbank: \n 0"
+            android:textColor="@android:color/black"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textSize="14sp"
+            android:textAlignment="center"
+            android:id="@+id/db_status_textView"
+            android:gravity="center_vertical"/>
+    </RelativeLayout>
 
     <TextView
         android:text="@string/select_event"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/selectEvent"
-        android:layout_below="@+id/btn_back"
-        android:layout_marginTop="20dp"
+        android:layout_below="@+id/status_bar"
         />
 
     <Spinner
@@ -93,12 +95,40 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_toRightOf="@+id/selectEvent"
-        android:layout_below="@+id/btn_back"
-        android:layout_marginTop="20dp"
+        android:layout_below="@+id/status_bar"
         >
 
     </Spinner>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_below="@id/selectEvent"
+        android:layout_marginTop="40dp">
 
+        <Button
+            android:text="Gäste Anzeigen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btn_parsejson"
+            android:layout_centerHorizontal="true"
+            android:onClick="parseJSON"
+            android:layout_weight="1"/>
+
+        <Button
+            android:text="SYNC"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:onClick="insertAttendees"
+            android:id="@+id/btn_insertAttendees"
+            android:layout_weight="1"
+            />
+
+
+
+    </LinearLayout>
 
 </RelativeLayout>
+
+

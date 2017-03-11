@@ -10,7 +10,6 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.asmedia.checkin_android.LoginActivity">
 
-
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -48,21 +47,17 @@
         android:id="@+id/btn_login"
         android:onClick="onLogin"/>
 
-    <Button
-        android:text="Button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:id="@+id/btn_logout"
-        android:onClick="onLogout"/>
 
-    <Button
+    <ProgressBar
+        style="@android:style/Widget.Material.Light.ProgressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:text="show_prefs"
-        android:id="@+id/btn_prefs"
-        android:onClick="checkPrefs"/>
+        android:id="@+id/loginprogress"
+        android:progressTint="@android:color/holo_orange_dark"
+        android:visibility="visible"
+        android:layout_marginStart="17dp"
+        android:layout_alignBottom="@+id/et_password"
+        android:layout_toEndOf="@+id/et_username" />
+
+
 </RelativeLayout>

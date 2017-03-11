@@ -76,8 +76,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-
         btn_scan = (Button) findViewById(R.id.button_scan);
         btn_admin = (Button) findViewById(R.id.button_admin);
 

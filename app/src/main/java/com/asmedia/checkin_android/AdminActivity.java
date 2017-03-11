@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,13 +36,16 @@ import java.util.concurrent.ExecutionException;
 import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
 
 public class AdminActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     private Session session;
 
-    Button btn_logout, btn_back;
+    Button btn_logout;
+
+    ImageButton btn_back;
 
     String json_string;
 
@@ -61,7 +66,9 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
 
     Realm realm;
 
-    TextView displayJson;
+    View statusBar;
+
+    TextView statusBarTextView;
 
     int selectedEvent;
 
@@ -72,13 +79,18 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
 
+        statusBarTextView = (TextView)findViewById(R.id.db_status_textView);
+        statusBar = findViewById(R.id.status_bar_bg);
+
+        updateStatusBar();
+
         Realm.init(this);
         realm = Realm.getDefaultInstance();
 
 
 
         btn_logout = (Button) findViewById(R.id.btn_logout);
-        btn_back = (Button) findViewById(R.id.btn_back);
+        btn_back = (ImageButton) findViewById(R.id.btn_back);
 
         btn_logout.setOnClickListener(new View.OnClickListener(){
 
@@ -110,7 +122,6 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
 
         spinnerEvents.setOnItemSelectedListener(this);
 
-        displayJson = (TextView) findViewById(R.id.textView_displayJSON);
 
         getEvents();
 
@@ -134,6 +145,9 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
 
     }
 
+
+    //API Methods
+
     public void getEvents(){
 
         String url = "https://ticketval.de/api/getEvents";
@@ -144,7 +158,7 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
 
         accessToken = sharedPref.getString("accessToken", "");
 
-        AsyncHttpClient client = new AsyncHttpClient();
+        AsyncHttpClient client = new AsyncHttpClient(true, 80, 443);
         client.addHeader("Authorization", "Bearer " + accessToken);
 
         client.get(url, null, new JsonHttpResponseHandler(){
@@ -199,7 +213,7 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
 
         accessToken = sharedPref.getString("accessToken", "");
 
-        AsyncHttpClient client = new AsyncHttpClient();
+        AsyncHttpClient client = new AsyncHttpClient(true, 80, 443);
         client.addHeader("Authorization", "Bearer " + accessToken);
 
         client.get(url, null, new JsonHttpResponseHandler(){
@@ -239,14 +253,14 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
 
         String url = "https://ticketval.de/api/getAttendees/" + selectedEvent;
 
-        String accesToken;
+        String accessToken;
 
         SharedPreferences sharedPref = getSharedPreferences("accessTokens", Context.MODE_PRIVATE);
 
-        accesToken = sharedPref.getString("accessToken", "");
+        accessToken = sharedPref.getString("accessToken", "");
 
-        AsyncHttpClient client = new AsyncHttpClient();
-        client.addHeader("Authorization", "Bearer " + accesToken);
+        AsyncHttpClient client = new AsyncHttpClient(true, 80, 443);
+        client.addHeader("Authorization", "Bearer " + accessToken);
 
         client.get(url, null, new JsonHttpResponseHandler(){
             @Override
@@ -302,6 +316,59 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
 
     }
 
+    public int countAttendees(){
+
+        int attendeesCount = 0;
+
+        Realm.init(this);
+        Realm realm = Realm.getDefaultInstance();
+
+        RealmQuery<AttendeeObject> query = realm.where(AttendeeObject.class);
+
+        RealmResults<AttendeeObject> results = query.findAll();
+
+        if(results.isEmpty()){
+
+            attendeesCount = 0;
+
+        } else{
+
+            attendeesCount = results.size();
+
+        }
+
+
+        return attendeesCount;
+    }
+
+    public void truncate_db(View view) {
+
+        AlertDialog.Builder a_builder = new AlertDialog.Builder(AdminActivity.this);
+        a_builder.setMessage("Alle Datensätze werden gelöscht! Fortfahren?")
+                .setCancelable(false)
+                .setPositiveButton("Ja", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                        realm.beginTransaction();
+                        realm.deleteAll();
+                        realm.commitTransaction();
+
+                        updateStatusBar();
+                    }
+                })
+                .setNegativeButton("Nein", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+
+        AlertDialog alert = a_builder.create();
+        alert.setTitle("Achtung!");
+        alert.show();
+    }
+
 
 
 
@@ -340,23 +407,6 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
 
     }
 
-    public void showDB(View view){
-
-        TextView displayData = (TextView) findViewById(R.id.textView_displayDB);
-
-        displayData.setText("");
-
-        Realm.init(this);
-        Realm realm = Realm.getDefaultInstance();
-
-        RealmResults<AttendeeObject> results = realm.where(AttendeeObject.class).findAll();
-
-        for(int i=0;i< results.size();i++){
-
-            displayData.append(results.get(i).getFirstName() + results.get(i).getLastName() + results.get(i).getEventName() +" ");
-        }
-
-    }
 
     public void insertIntoRealm(String json){
 
@@ -387,6 +437,7 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
                                 String.valueOf(eventsArrayList.get(catObj.getInt("event_id")-1).getEventname()));
 
                         realm.commitTransaction();
+                        updateStatusBar();
 
 
                     }
@@ -406,7 +457,16 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
 
     }
 
+    public void updateStatusBar(){
 
+        if(countAttendees()==0){
+            statusBar.setBackgroundColor(Color.RED);
+            statusBarTextView.setText("Anzahl der Gäste in der Datenbank:\n " + countAttendees());
+        }else{
+            statusBar.setBackgroundColor(Color.GREEN);
+            statusBarTextView.setText("Anzahl der Gäste in der Datenbank:\n " + countAttendees());
+        }
+    }
 
 
 
