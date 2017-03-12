@@ -22,6 +22,17 @@ public class AttendeeObject extends RealmObject {
     String checkinTime;
     Boolean arrived;
     String eventName;
+    Boolean is_cancelled;
+
+    public Boolean getIs_cancelled() {
+        return is_cancelled;
+    }
+
+    public void setIs_cancelled(Boolean is_cancelled) {
+        this.is_cancelled = is_cancelled;
+    }
+
+
 
     public String getEventName() {
         return eventName;

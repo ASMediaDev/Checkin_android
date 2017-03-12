@@ -2,10 +2,13 @@ package com.asmedia.checkin_android;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Color;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 
 import com.google.zxing.Result;
@@ -26,7 +29,7 @@ public class ScanActivityZXing extends AppCompatActivity implements ZXingScanner
 
     private ZXingScannerView mScannerView;
 
-    TextView eventStatus;
+    TextView eventStatus, attendeeNameTextView;
 
     String loadedEvent;
 
@@ -41,6 +44,7 @@ public class ScanActivityZXing extends AppCompatActivity implements ZXingScanner
         setContentView(R.layout.activity_scan_zxing);
 
         eventStatus = (TextView) findViewById(R.id.textViewEventStatus);
+        attendeeNameTextView = (TextView) findViewById(R.id.scan_textview);
         mScannerView = (ZXingScannerView) findViewById(R.id.scannerView);
         mScannerView.setResultHandler(this);
         mScannerView.startCamera();
@@ -85,6 +89,9 @@ public class ScanActivityZXing extends AppCompatActivity implements ZXingScanner
 
                 String attendeeName = getAttendeeName(private_reference_number);
 
+                attendeeNameTextView.setText(attendeeName);
+                attendeeNameTextView.setBackgroundColor(Color.GREEN);
+
                 AlertDialog.Builder a_builder = new AlertDialog.Builder(this);
                 final int finalPrivate_reference_number = private_reference_number;
                 a_builder.setMessage("Gast: " + attendeeName)
@@ -95,7 +102,8 @@ public class ScanActivityZXing extends AppCompatActivity implements ZXingScanner
 
                                 checkIn(finalPrivate_reference_number);
                                 updateStatus();
-
+                                attendeeNameTextView.setText("Kein QR-Code erkannt!");
+                                attendeeNameTextView.setBackgroundColor(getResources().getColor(R.color.black_overlay));
                                 mScannerView.resumeCameraPreview(ScanActivityZXing.this);
 
 
@@ -105,6 +113,8 @@ public class ScanActivityZXing extends AppCompatActivity implements ZXingScanner
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 dialogInterface.cancel();
+                                attendeeNameTextView.setText("Kein QR-Code erkannt!");
+                                attendeeNameTextView.setBackgroundColor(getResources().getColor(R.color.black_overlay));
                                 mScannerView.resumeCameraPreview(ScanActivityZXing.this);
                             }
                         });
@@ -115,6 +125,12 @@ public class ScanActivityZXing extends AppCompatActivity implements ZXingScanner
             } else{
 
                 String checkinTime = getCheckinTime(private_reference_number);
+                String attendeeName = getAttendeeName(private_reference_number);
+
+                attendeeNameTextView.setText(attendeeName);
+                attendeeNameTextView.setBackgroundColor(Color.YELLOW);
+
+
 
                 AlertDialog.Builder a_builder = new AlertDialog.Builder(this);
                 final int finalPrivate_reference_number1 = private_reference_number;
@@ -126,6 +142,8 @@ public class ScanActivityZXing extends AppCompatActivity implements ZXingScanner
 
                                 checkOut(finalPrivate_reference_number1);
                                 updateStatus();
+                                attendeeNameTextView.setText("Kein QR-Code erkannt!");
+                                attendeeNameTextView.setBackgroundColor(getResources().getColor(R.color.black_overlay));
 
                                 mScannerView.resumeCameraPreview(ScanActivityZXing.this);
 
@@ -136,6 +154,8 @@ public class ScanActivityZXing extends AppCompatActivity implements ZXingScanner
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 dialogInterface.cancel();
+                                attendeeNameTextView.setText("Kein QR-Code erkannt!");
+                                attendeeNameTextView.setBackgroundColor(getResources().getColor(R.color.black_overlay));
                                 mScannerView.resumeCameraPreview(ScanActivityZXing.this);
                             }
                         });
@@ -152,6 +172,8 @@ public class ScanActivityZXing extends AppCompatActivity implements ZXingScanner
 
         }else{
 
+            attendeeNameTextView.setBackgroundColor(Color.RED);
+
             AlertDialog.Builder a_builder = new AlertDialog.Builder(this);
             a_builder.setMessage("Dieses Ticket existiert nicht in der Datenbank")
                     .setCancelable(false)
@@ -159,6 +181,8 @@ public class ScanActivityZXing extends AppCompatActivity implements ZXingScanner
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             dialogInterface.cancel();
+                            attendeeNameTextView.setText("Kein QR-Code erkannt!");
+                            attendeeNameTextView.setBackgroundColor(getResources().getColor(R.color.black_overlay));
                             mScannerView.resumeCameraPreview(ScanActivityZXing.this);
                         }
                     });
@@ -305,7 +329,7 @@ public class ScanActivityZXing extends AppCompatActivity implements ZXingScanner
 
         if (results.isEmpty()){
 
-            eventStatus.setText("NO EVENT SYNCED");
+            eventStatus.setText("Kein Event synchronisiert!");
 
         }else {
 
@@ -314,9 +338,14 @@ public class ScanActivityZXing extends AppCompatActivity implements ZXingScanner
             attendeesCount = results.size();
             Log.d("Event: ", loadedEvent);
 
-            eventStatus.setText("Event: " + loadedEvent + " | " + "Attendees: " + attendeesArrived() + "/" + attendeesCount);
+            eventStatus.setText("Event: " + loadedEvent + " | " + "Gäste: " + attendeesArrived() + "/" + attendeesCount);
 
         }
 
+    }
+
+    public void main_redirect(View view) {
+        Intent i = new Intent(view.getContext(), MainActivity.class);
+        startActivity(i);
     }
 }

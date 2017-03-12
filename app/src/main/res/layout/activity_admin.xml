@@ -42,6 +42,7 @@
             android:layout_height="match_parent"
             android:id="@+id/btn_checkin"
             android:layout_weight="1"
+            android:onClick="checkin_redirect"
             />
 
         <Button
@@ -87,7 +88,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/selectEvent"
         android:layout_below="@+id/status_bar"
-        />
+        android:textSize="16sp" />
 
     <Spinner
         android:id="@+id/spinner"
@@ -96,6 +97,7 @@
         android:layout_alignParentRight="true"
         android:layout_toRightOf="@+id/selectEvent"
         android:layout_below="@+id/status_bar"
+        android:layout_alignBottom="@id/selectEvent"
         >
 
     </Spinner>

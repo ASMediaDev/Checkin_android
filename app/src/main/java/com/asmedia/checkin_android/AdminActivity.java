@@ -132,11 +132,7 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
 
-        Toast.makeText(this,"Selected: " + eventsArrayList.get(i).getEventname(),Toast.LENGTH_SHORT).show();
         selectedEvent = (i+1);
-        //new GetAttendees().execute(i+1);
-        //getAttendees(i+1);
-
 
     }
 
@@ -419,28 +415,56 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
                 JSONArray jsonArr = new JSONArray(json);
                 if (jsonArr != null) {
 
+                    int insertcounter = 0;
+
                     for (int i = 0; i < jsonArr.length(); i++) {
                         realm.beginTransaction();
 
                         JSONObject catObj = (JSONObject) jsonArr.get(i);
-                        AttendeeObject obj = realm.createObject(AttendeeObject.class, catObj.getInt("private_reference_number"));
 
-                        obj.setFirstName(catObj.getString("first_name"));
-                        obj.setLastName(catObj.getString("last_name"));
-                        obj.setOrderId(catObj.getInt("order_id"));
-                        obj.setTicketId(catObj.getInt("ticket_id"));
-                        //obj.setPrivate_reference_number(catObj.getInt("private_reference_number"));
-                        obj.setArrived(false);
-                        obj.setEventName(String.valueOf(eventsArrayList.get(catObj.getInt("event_id")-1).getEventname()));
+                        Log.d("Cancelled", (String) catObj.get("is_cancelled"));
 
-                        Log.d("Insertion for ",obj.getFirstName() + obj.getLastName() +"complete" + "Event: " +
-                                String.valueOf(eventsArrayList.get(catObj.getInt("event_id")-1).getEventname()));
+                        if(catObj.getInt("is_cancelled")==1){
 
-                        realm.commitTransaction();
-                        updateStatusBar();
+                            Log.d("Cancelled"," true");
+                            realm.cancelTransaction();
+
+                        }else {
+
+                            AttendeeObject obj = realm.createObject(AttendeeObject.class, catObj.getInt("private_reference_number"));
 
 
+                            obj.setFirstName(catObj.getString("first_name"));
+                            obj.setLastName(catObj.getString("last_name"));
+                            obj.setOrderId(catObj.getInt("order_id"));
+                            obj.setTicketId(catObj.getInt("ticket_id"));
+                            //obj.setPrivate_reference_number(catObj.getInt("private_reference_number"));
+                            obj.setArrived(false);
+                            obj.setEventName(String.valueOf(eventsArrayList.get(catObj.getInt("event_id") - 1).getEventname()));
+                            obj.setIs_cancelled(false);
+
+                            Log.d("Insertion for ", obj.getFirstName() + obj.getLastName() + "complete" + "Event: " +
+                                    String.valueOf(eventsArrayList.get(catObj.getInt("event_id") - 1).getEventname()));
+
+                            realm.commitTransaction();
+                            insertcounter++;
+                        }
                     }
+                    updateStatusBar();
+
+                    AlertDialog.Builder a_builder = new AlertDialog.Builder(AdminActivity.this);
+                    a_builder.setMessage("Es wurden " + insertcounter + " Datensätze importiert")
+                            .setCancelable(false)
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+
+                                }
+                            });
+
+                    AlertDialog alert = a_builder.create();
+                    alert.setTitle("Synchronisierung abgeschlossen!");
+                    alert.show();
 
 
                 }
@@ -469,5 +493,9 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
     }
 
 
+    public void checkin_redirect(View view) {
 
+        Intent i = new Intent(view.getContext(), ScanActivityZXing.class);
+        startActivity(i);
+    }
 }
