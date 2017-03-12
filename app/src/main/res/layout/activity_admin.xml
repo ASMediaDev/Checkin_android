@@ -9,7 +9,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:layout_below="@+id/navigation_bar"
-    tools:context="com.asmedia.checkin_android.AdminActivity">
+    tools:context="com.asmedia.checkin_android.Activities.AdminActivity">
 
     <LinearLayout
         android:orientation="horizontal"

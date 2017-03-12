@@ -1,23 +1,20 @@
-package com.asmedia.checkin_android;
+package com.asmedia.checkin_android.Activities;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.asmedia.checkin_android.Attendee_Classes.AttendeeObject;
+import com.asmedia.checkin_android.R;
 import com.google.zxing.Result;
 
-import org.json.JSONObject;
-
-import java.security.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 
 import io.realm.Realm;
@@ -331,6 +328,31 @@ public class ScanActivityZXing extends AppCompatActivity implements ZXingScanner
 
             eventStatus.setText("Kein Event synchronisiert!");
 
+            AlertDialog.Builder a_builder = new AlertDialog.Builder(ScanActivityZXing.this);
+            a_builder.setMessage("Bitte ein Event synchronisieren!")
+                    .setCancelable(false)
+                    .setPositiveButton("Verwaltung", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                            admin_redirect();
+
+
+
+
+                        }
+                    })
+                    .setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.cancel();
+                        }
+                    });
+
+            AlertDialog alert = a_builder.create();
+            alert.setTitle("Achtung!");
+            alert.show();
+
         }else {
 
 
@@ -347,5 +369,12 @@ public class ScanActivityZXing extends AppCompatActivity implements ZXingScanner
     public void main_redirect(View view) {
         Intent i = new Intent(view.getContext(), MainActivity.class);
         startActivity(i);
+    }
+
+    public void admin_redirect(){
+
+        Intent i = new Intent(ScanActivityZXing.this, LoginActivity.class);
+        startActivity(i);
+
     }
 }

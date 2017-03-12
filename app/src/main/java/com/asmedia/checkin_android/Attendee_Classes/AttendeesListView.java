@@ -1,9 +1,11 @@
-package com.asmedia.checkin_android;
+package com.asmedia.checkin_android.Attendee_Classes;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ListView;
+
+import com.asmedia.checkin_android.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;

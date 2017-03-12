@@ -1,4 +1,4 @@
-package com.asmedia.checkin_android;
+package com.asmedia.checkin_android.Activities;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -11,6 +11,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.asmedia.checkin_android.Attendee_Classes.AttendeeObject;
+import com.asmedia.checkin_android.R;
 
 import io.realm.Realm;
 import io.realm.RealmResults;

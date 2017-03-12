@@ -1,4 +1,4 @@
-package com.asmedia.checkin_android;
+package com.asmedia.checkin_android.Attendee_Classes;
 
 import java.util.Date;
 
