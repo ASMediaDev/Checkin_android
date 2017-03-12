@@ -3,23 +3,24 @@
     android:layout_width="match_parent" android:layout_height="75dp">
 
     <TextView
-        android:layout_width="120dp"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:id="@+id/tx_firstname"
         android:layout_alignParentLeft="true"
         android:text="First Name"
         android:gravity="center"
-        android:textAppearance="?android:textAppearanceLarge"
+        android:textAppearance="?android:textAppearanceMedium"
         />
 
     <TextView
-        android:layout_width="120dp"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:id="@+id/tx_lastname"
+        android:layout_marginLeft="10dp"
         android:layout_toRightOf="@+id/tx_firstname"
         android:text="Last Name"
         android:gravity="center"
-        android:textAppearance="?android:textAppearanceLarge"
+        android:textAppearance="?android:textAppearanceMedium"
         />
 
 </RelativeLayout>

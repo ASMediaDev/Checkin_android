@@ -34,6 +34,8 @@ public class ScanActivityZXing extends AppCompatActivity implements ZXingScanner
 
     Realm realm;
 
+    AdminActivity adminActivity = new AdminActivity();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +51,7 @@ public class ScanActivityZXing extends AppCompatActivity implements ZXingScanner
         Realm.init(this);
         realm = Realm.getDefaultInstance();
 
-        updateStatus();
+        updateEventStatus();
 
 
 
@@ -72,6 +74,8 @@ public class ScanActivityZXing extends AppCompatActivity implements ZXingScanner
 
         Log.d("SCAN: ", result.getText());
 
+
+
         int private_reference_number = 0;
         try {
             private_reference_number = Integer.parseInt(result.getText());
@@ -79,12 +83,12 @@ public class ScanActivityZXing extends AppCompatActivity implements ZXingScanner
             Log.d("Parse: ", "Could not parse " + nfe);
         }
 
-        if (ticketExists(private_reference_number)) {
+        if (adminActivity.ticketExists(private_reference_number)) {
 
 
-            if(ticketIsValid(private_reference_number)){
+            if(adminActivity.hasArrived(private_reference_number)){
 
-                String attendeeName = getAttendeeName(private_reference_number);
+                String attendeeName = adminActivity.getNameForTicket(private_reference_number);
 
                 attendeeNameTextView.setText(attendeeName);
                 attendeeNameTextView.setBackgroundColor(Color.GREEN);
@@ -97,8 +101,8 @@ public class ScanActivityZXing extends AppCompatActivity implements ZXingScanner
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
 
-                                checkIn(finalPrivate_reference_number);
-                                updateStatus();
+                                adminActivity.checkIn(finalPrivate_reference_number);
+                                updateEventStatus();
                                 attendeeNameTextView.setText("Kein QR-Code erkannt!");
                                 attendeeNameTextView.setBackgroundColor(getResources().getColor(R.color.black_overlay));
                                 mScannerView.resumeCameraPreview(ScanActivityZXing.this);
@@ -119,10 +123,10 @@ public class ScanActivityZXing extends AppCompatActivity implements ZXingScanner
                 AlertDialog alert = a_builder.create();
                 alert.setTitle("Ticket gültig!");
                 alert.show();
-            } else{
+            } else if (adminActivity.hasArrived(private_reference_number)){
 
-                String checkinTime = getCheckinTime(private_reference_number);
-                String attendeeName = getAttendeeName(private_reference_number);
+                String checkinTime = adminActivity.getCheckinTime(private_reference_number);
+                String attendeeName = adminActivity.getNameForTicket(private_reference_number);
 
                 attendeeNameTextView.setText(attendeeName);
                 attendeeNameTextView.setBackgroundColor(Color.YELLOW);
@@ -137,8 +141,8 @@ public class ScanActivityZXing extends AppCompatActivity implements ZXingScanner
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
 
-                                checkOut(finalPrivate_reference_number1);
-                                updateStatus();
+                                adminActivity.checkOut(finalPrivate_reference_number1);
+                                updateEventStatus();
                                 attendeeNameTextView.setText("Kein QR-Code erkannt!");
                                 attendeeNameTextView.setBackgroundColor(getResources().getColor(R.color.black_overlay));
 
@@ -191,136 +195,8 @@ public class ScanActivityZXing extends AppCompatActivity implements ZXingScanner
 
         }
     }
-    public boolean ticketExists(int private_reference_number){
 
-
-        RealmQuery<AttendeeObject> query = realm.where(AttendeeObject.class);
-        query.equalTo("private_reference_number",private_reference_number);
-
-        RealmResults<AttendeeObject> results = query.findAll();
-
-        if(results.isEmpty()){
-
-            Log.d("DBController","Ticket does not exist!");
-            return false;
-
-        } else{
-
-            Log.d("DBController","Ticket exists!");
-            return true;
-
-        }
-
-    }
-
-    public boolean ticketIsValid(int private_reference_number){
-
-
-        RealmQuery<AttendeeObject> query = realm.where(AttendeeObject.class);
-        query.equalTo("private_reference_number",private_reference_number);
-        query.equalTo("arrived", false);
-
-        RealmResults<AttendeeObject> results = query.findAll();
-
-        if(results.isEmpty()){
-
-            Log.d("DBController","Ticket does not exist!");
-            return false;
-
-        } else{
-
-            Log.d("DBController","Ticket exists!");
-            return true;
-
-        }
-
-    }
-
-    public void checkIn(int private_reference_number){
-
-
-        RealmQuery<AttendeeObject> query = realm.where(AttendeeObject.class);
-        query.equalTo("private_reference_number",private_reference_number);
-
-
-        RealmResults<AttendeeObject> results = query.findAll();
-
-        realm.beginTransaction();
-        results.get(0).setArrived(true);
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy-hh-mm");
-        String format = simpleDateFormat.format(new Date());
-        results.get(0).setCheckinTime(format);
-
-        Log.d("MainAct", "Current Timestamp " + format);
-
-        //Log.d("Hours", String.valueOf(android.icu.util.Calendar.HOUR));
-
-        realm.commitTransaction();
-
-
-
-
-    }
-
-    public void checkOut(int private_reference_number){
-
-        RealmQuery<AttendeeObject> query = realm.where(AttendeeObject.class);
-        query.equalTo("private_reference_number",private_reference_number);
-
-
-        RealmResults<AttendeeObject> results = query.findAll();
-
-        realm.beginTransaction();
-        results.get(0).setArrived(false);
-        realm.commitTransaction();
-
-
-
-
-
-    }
-
-    public String getCheckinTime(int private_reference_number){
-
-
-        RealmQuery<AttendeeObject> query = realm.where(AttendeeObject.class);
-        query.equalTo("private_reference_number",private_reference_number);
-        query.equalTo("arrived", true);
-
-        RealmResults<AttendeeObject> results = query.findAll();
-        return (results.get(0).getCheckinTime());
-
-
-
-    }
-
-    public String getAttendeeName(int private_reference_number){
-
-        RealmQuery<AttendeeObject> query = realm.where(AttendeeObject.class);
-        query.equalTo("private_reference_number",private_reference_number);
-
-
-        RealmResults<AttendeeObject> results = query.findAll();
-        String attendeeName = (results.get(0).getFirstName() + " " + results.get(0).getLastName());
-
-        return attendeeName;
-
-
-
-    }
-
-    public int attendeesArrived(){
-
-        RealmQuery<AttendeeObject> query = realm.where(AttendeeObject.class);
-        query.equalTo("arrived", true);
-
-        RealmResults<AttendeeObject> results = query.findAll();
-
-        return results.size();
-    }
-
-    public void updateStatus(){
-
+    public void updateEventStatus(){
 
         RealmResults<AttendeeObject> results = realm.where(AttendeeObject.class).findAll();
 
@@ -360,7 +236,7 @@ public class ScanActivityZXing extends AppCompatActivity implements ZXingScanner
             attendeesCount = results.size();
             Log.d("Event: ", loadedEvent);
 
-            eventStatus.setText("Event: " + loadedEvent + " | " + "Gäste: " + attendeesArrived() + "/" + attendeesCount);
+            eventStatus.setText("Event: " + loadedEvent + " | " + "Gäste: " + adminActivity.countAttendeesArrived() + "/" + attendeesCount);
 
         }
 

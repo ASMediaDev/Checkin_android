@@ -33,7 +33,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:id="@+id/btn_trash"
-            android:onClick="truncate_db"
+            android:onClick="clearDataStore"
             android:layout_weight="1"/>
 
         <ImageButton
@@ -114,7 +114,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/btn_parsejson"
             android:layout_centerHorizontal="true"
-            android:onClick="parseJSON"
+            android:onClick="displayAttendees"
             android:layout_weight="1"/>
 
         <Button

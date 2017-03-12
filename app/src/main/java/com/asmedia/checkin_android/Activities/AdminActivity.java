@@ -30,7 +30,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -51,10 +53,6 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
     String json_string;
 
     private ArrayList<Events> eventsArrayList;
-
-    private String URL_EVENTS = "https://ticketval.de/api/getEvents";
-    private String URL_ATTENDEES = "https://ticketval.de/api/getAttendees?eventId=";
-
 
     String [] spinnerList = {};
 
@@ -130,6 +128,9 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
 
     }
 
+
+    //Spinner Methods
+
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
 
@@ -140,6 +141,28 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
 
+    }
+
+    private void populateSpinner() {
+        List<String> lables = new ArrayList<String>();
+
+        //txtCategory.setText("");
+
+        for (int i = 0; i < eventsArrayList.size(); i++) {
+            lables.add(eventsArrayList.get(i).getEventname());
+            Log.d("Event:", String.valueOf(eventsArrayList.get(i)));
+        }
+
+        // Creating adapter for spinner
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, lables);
+
+        // Drop down layout style - list view with radio button
+        spinnerAdapter
+                .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        // attaching data adapter to spinner
+        spinnerEvents.setAdapter(spinnerAdapter);
     }
 
 
@@ -245,6 +268,35 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
         });
     }
 
+    //Realm Methods
+
+    public void clearDataStore(View view) {
+
+        AlertDialog.Builder a_builder = new AlertDialog.Builder(AdminActivity.this);
+        a_builder.setMessage("Alle Datensätze werden gelöscht! Fortfahren?")
+                .setCancelable(false)
+                .setPositiveButton("Ja", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                        realm.beginTransaction();
+                        realm.deleteAll();
+                        realm.commitTransaction();
+
+                        updateStatusBar();
+                    }
+                })
+                .setNegativeButton("Nein", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+
+        AlertDialog alert = a_builder.create();
+        alert.setTitle("Achtung!");
+        alert.show();
+    }
 
     public void insertAttendees(View view){
 
@@ -312,98 +364,6 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
 
 
     }
-
-    public int countAttendees(){
-
-        int attendeesCount = 0;
-
-        Realm.init(this);
-        Realm realm = Realm.getDefaultInstance();
-
-        RealmQuery<AttendeeObject> query = realm.where(AttendeeObject.class);
-
-        RealmResults<AttendeeObject> results = query.findAll();
-
-        if(results.isEmpty()){
-
-            attendeesCount = 0;
-
-        } else{
-
-            attendeesCount = results.size();
-
-        }
-
-
-        return attendeesCount;
-    }
-
-    public void truncate_db(View view) {
-
-        AlertDialog.Builder a_builder = new AlertDialog.Builder(AdminActivity.this);
-        a_builder.setMessage("Alle Datensätze werden gelöscht! Fortfahren?")
-                .setCancelable(false)
-                .setPositiveButton("Ja", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-
-                        realm.beginTransaction();
-                        realm.deleteAll();
-                        realm.commitTransaction();
-
-                        updateStatusBar();
-                    }
-                })
-                .setNegativeButton("Nein", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.cancel();
-                    }
-                });
-
-        AlertDialog alert = a_builder.create();
-        alert.setTitle("Achtung!");
-        alert.show();
-    }
-
-
-
-
-    /**
-     * Adding spinner data
-     * */
-    private void populateSpinner() {
-        List<String> lables = new ArrayList<String>();
-
-        //txtCategory.setText("");
-
-        for (int i = 0; i < eventsArrayList.size(); i++) {
-            lables.add(eventsArrayList.get(i).getEventname());
-            Log.d("Event:", String.valueOf(eventsArrayList.get(i)));
-        }
-
-        // Creating adapter for spinner
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item, lables);
-
-        // Drop down layout style - list view with radio button
-        spinnerAdapter
-                .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        // attaching data adapter to spinner
-        spinnerEvents.setAdapter(spinnerAdapter);
-    }
-
-
-
-    public void parseJSON(View view) throws ExecutionException, InterruptedException {
-
-        //new GetAttendees().execute(selectedEvent);
-        getAttendees(selectedEvent);
-
-
-    }
-
 
     public void insertIntoRealm(String json){
 
@@ -480,6 +440,164 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
 
     }
 
+    //Ticketing Methods
+
+    public boolean ticketExists(int private_reference_number){
+
+
+        RealmQuery<AttendeeObject> query = realm.where(AttendeeObject.class);
+        query.equalTo("private_reference_number",private_reference_number);
+
+        RealmResults<AttendeeObject> results = query.findAll();
+
+        if(results.isEmpty()){
+
+            Log.d("DBController","Ticket does not exist!");
+            return false;
+
+        } else{
+
+            Log.d("DBController","Ticket exists!");
+            return true;
+
+        }
+
+    }
+
+    public boolean hasArrived(int private_reference_number){
+
+
+        RealmQuery<AttendeeObject> query = realm.where(AttendeeObject.class);
+        query.equalTo("private_reference_number",private_reference_number);
+        query.equalTo("arrived", false);
+
+        RealmResults<AttendeeObject> results = query.findAll();
+
+        if(results.isEmpty()){
+
+            Log.d("DBController","Ticket does not exist!");
+            return false;
+
+        } else{
+
+            Log.d("DBController","Ticket exists!");
+            return true;
+
+        }
+
+    }
+
+    public void checkIn(int private_reference_number){
+
+
+        RealmQuery<AttendeeObject> query = realm.where(AttendeeObject.class);
+        query.equalTo("private_reference_number",private_reference_number);
+
+
+        RealmResults<AttendeeObject> results = query.findAll();
+
+        realm.beginTransaction();
+        results.get(0).setArrived(true);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy-hh-mm");
+        String format = simpleDateFormat.format(new Date());
+        results.get(0).setCheckinTime(format);
+
+        Log.d("MainAct", "Current Timestamp " + format);
+
+        //Log.d("Hours", String.valueOf(android.icu.util.Calendar.HOUR));
+
+        realm.commitTransaction();
+
+
+
+
+    }
+
+    public void checkOut(int private_reference_number){
+
+        RealmQuery<AttendeeObject> query = realm.where(AttendeeObject.class);
+        query.equalTo("private_reference_number",private_reference_number);
+
+
+        RealmResults<AttendeeObject> results = query.findAll();
+
+        realm.beginTransaction();
+        results.get(0).setArrived(false);
+        realm.commitTransaction();
+
+
+
+
+
+    }
+
+    public String getNameForTicket(int private_reference_number){
+
+        RealmQuery<AttendeeObject> query = realm.where(AttendeeObject.class);
+        query.equalTo("private_reference_number",private_reference_number);
+
+
+        RealmResults<AttendeeObject> results = query.findAll();
+        String attendeeName = (results.get(0).getFirstName() + " " + results.get(0).getLastName());
+
+        return attendeeName;
+
+
+
+    }
+
+    public String getCheckinTime(int private_reference_number){
+
+
+        RealmQuery<AttendeeObject> query = realm.where(AttendeeObject.class);
+        query.equalTo("private_reference_number",private_reference_number);
+        query.equalTo("arrived", true);
+
+        RealmResults<AttendeeObject> results = query.findAll();
+        return (results.get(0).getCheckinTime());
+
+
+
+    }
+
+    public int countAttendees(){
+
+        int attendeesCount = 0;
+
+        Realm.init(this);
+        Realm realm = Realm.getDefaultInstance();
+
+        RealmQuery<AttendeeObject> query = realm.where(AttendeeObject.class);
+
+        RealmResults<AttendeeObject> results = query.findAll();
+
+        if(results.isEmpty()){
+
+            attendeesCount = 0;
+
+        } else{
+
+            attendeesCount = results.size();
+
+        }
+
+
+        return attendeesCount;
+    }
+
+    public int countAttendeesArrived(){
+
+        Realm.init(this);
+        realm = Realm.getDefaultInstance();
+
+        RealmQuery<AttendeeObject> query = realm.where(AttendeeObject.class);
+        query.equalTo("arrived", true);
+
+        RealmResults<AttendeeObject> results = query.findAll();
+
+        return results.size();
+    }
+
     public void updateStatusBar(){
 
         if(countAttendees()==0){
@@ -491,6 +609,15 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
         }
     }
 
+    public void displayAttendees(View view) throws ExecutionException, InterruptedException {
+
+        //new GetAttendees().execute(selectedEvent);
+        getAttendees(selectedEvent);
+
+
+    }
+
+    //Utility Methods
 
     public void checkin_redirect(View view) {
 
