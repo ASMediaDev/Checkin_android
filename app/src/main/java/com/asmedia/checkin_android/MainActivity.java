@@ -10,6 +10,10 @@ import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
+
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -18,6 +22,10 @@ public class MainActivity extends AppCompatActivity {
     //RelativeLayout background;
 
     Button btn_scan, btn_admin;
+
+    Realm realm;
+
+    TextView main_db_status;
 
     public static final String TAG = "MainActivity";
 
@@ -75,6 +83,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        main_db_status = (TextView) findViewById(R.id.main_db_status);
+
+        Realm.init(this);
+        realm = Realm.getDefaultInstance();
+
+        updateDbStatus();
 
         btn_scan = (Button) findViewById(R.id.button_scan);
         btn_admin = (Button) findViewById(R.id.button_admin);
@@ -152,6 +167,31 @@ public class MainActivity extends AppCompatActivity {
                     REQUEST_CAMERA);
         }
         // END_INCLUDE(camera_permission_request)
+    }
+
+
+    public void updateDbStatus(){
+
+        String loadedEvent;
+        int attendeesCount;
+
+        RealmResults<AttendeeObject> results = realm.where(AttendeeObject.class).findAll();
+
+        if (results.isEmpty()){
+
+            main_db_status.setText("Es befinden sich keine Gäste in der Datenbank!");
+
+        }else {
+
+
+            loadedEvent = results.get(0).getEventName();
+            attendeesCount = results.size();
+            Log.d("Event: ", loadedEvent);
+
+            main_db_status.setText("Synchronisiertes Event:\n" + loadedEvent + "\n\n" + "Anzahl der Gäste: " + attendeesCount);
+
+        }
+
     }
 
 

@@ -432,8 +432,6 @@ public class AdminActivity extends AppCompatActivity implements AdapterView.OnIt
                         }else {
 
                             AttendeeObject obj = realm.createObject(AttendeeObject.class, catObj.getInt("private_reference_number"));
-
-
                             obj.setFirstName(catObj.getString("first_name"));
                             obj.setLastName(catObj.getString("last_name"));
                             obj.setOrderId(catObj.getInt("order_id"));
